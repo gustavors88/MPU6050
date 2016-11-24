@@ -72,18 +72,18 @@ enum Gscale {
 int Gscale = GFS_250DPS;
 int Ascale = AFS_2G;
 
-MPU6050::MPU6050(uint8_t address, uint8_t bus)
+MPU6050::MPU6050(uint8_t address, uint8_t bus, i2c_pins pins)
 {
     _address = address;
     _bus = bus;
+    _pins = pins;
 }
 
 int MPU6050::begin(void)
 {  
     // Start I^2C
     //i2c_t3(_bus).begin(I2C_MASTER, 0, _pins, _pullups, _i2cRate);
-    i2c_t3(_bus).begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
-
+    i2c_t3(_bus).begin(I2C_MASTER, 0x00, _pins, I2C_PULLUP_EXT, I2C_RATE_400);
 
     uint8_t c = MPU6050::readByte(MPU6050_ADDRESS, WHO_AM_I_MPU6050);  // Read WHO_AM_I register for MPU-6050
 
