@@ -24,9 +24,9 @@ class MPU6050 {
 
         MPU6050(uint8_t address=0x68, uint8_t bus=0, i2c_pins pins=I2C_PINS_18_19, i2c_pullup=I2C_PULLUP_EXT, uint32_t i2cRate=I2C_RATE_400);
 
-        int   begin(void);
+        int begin(void);
 
-        bool  getMotion6Counts(int16_t * ax, int16_t * ay, int16_t * az, int16_t * gx, int16_t * gy, int16_t * gz);
+        bool getMotion6Counts(int16_t * ax, int16_t * ay, int16_t * az, int16_t * gx, int16_t * gy, int16_t * gz);
 
     private:
 
@@ -36,9 +36,9 @@ class MPU6050 {
         i2c_pullup _pullups;
         uint32_t   _i2cRate;
 
-        static void    readAccelData(int16_t * ax, int16_t * ay, int16_t *az);
-        static void    readGyroData(int16_t * gx, int16_t * gy, int16_t *gz);
-        static void    writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
-        static uint8_t readByte(uint8_t address, uint8_t subAddress);
-        static void    readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest);
+        void    readAccelData(int16_t * ax, int16_t * ay, int16_t *az);
+        void    readGyroData(int16_t * gx, int16_t * gy, int16_t *gz);
+        void    writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
+        uint8_t readByte(uint8_t address, uint8_t subAddress);
+        void    readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest);
 };

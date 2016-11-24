@@ -158,30 +158,30 @@ void MPU6050::readGyroData(int16_t * gx, int16_t * gy, int16_t * gz)
 
 void MPU6050::writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
-    Wire.beginTransmission(address);  // Initialize the Tx buffer
-    Wire.write(subAddress);           // Put slave register address in Tx buffer
-    Wire.write(data);                 // Put data in Tx buffer
-    Wire.endTransmission();           // Send the Tx buffer
+    i2c_t3(_bus).beginTransmission(address);  // Initialize the Tx buffer
+    i2c_t3(_bus).write(subAddress);           // Put slave register address in Tx buffer
+    i2c_t3(_bus).write(data);                 // Put data in Tx buffer
+    i2c_t3(_bus).endTransmission();           // Send the Tx buffer
 }
 
 uint8_t MPU6050::readByte(uint8_t address, uint8_t subAddress)
 {
     uint8_t data; // `data` will store the register data	 
-    Wire.beginTransmission(address);         // Initialize the Tx buffer
-    Wire.write(subAddress);	                 // Put slave register address in Tx buffer
-    Wire.endTransmission(false);             // Send the Tx buffer, but send a restart to keep connection alive
-    Wire.requestFrom(address, (uint8_t) 1);  // Read one byte from slave register address 
-    data = Wire.read();                      // Fill Rx buffer with result
+    i2c_t3(_bus).beginTransmission(address);         // Initialize the Tx buffer
+    i2c_t3(_bus).write(subAddress);	                 // Put slave register address in Tx buffer
+    i2c_t3(_bus).endTransmission(false);             // Send the Tx buffer, but send a restart to keep connection alive
+    i2c_t3(_bus).requestFrom(address, (uint8_t) 1);  // Read one byte from slave register address 
+    data = i2c_t3(_bus).read();                      // Fill Rx buffer with result
     return data;                             // Return data read from slave register
 }
 
 void MPU6050::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
-    Wire.beginTransmission(address);   // Initialize the Tx buffer
-    Wire.write(subAddress);            // Put slave register address in Tx buffer
-    Wire.endTransmission(false);       // Send the Tx buffer, but send a restart to keep connection alive
+    i2c_t3(_bus).beginTransmission(address);   // Initialize the Tx buffer
+    i2c_t3(_bus).write(subAddress);            // Put slave register address in Tx buffer
+    i2c_t3(_bus).endTransmission(false);       // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
-    Wire.requestFrom(address, count);  // Read bytes from slave register address 
-    while (Wire.available()) {
-        dest[i++] = Wire.read(); }         // Put read results in the Rx buffer
+    i2c_t3(_bus).requestFrom(address, count);  // Read bytes from slave register address 
+    while (i2c_t3(_bus).available()) {
+        dest[i++] = i2c_t3(_bus).read(); }         // Put read results in the Rx buffer
 }
