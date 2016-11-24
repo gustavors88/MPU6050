@@ -22,7 +22,7 @@ class MPU6050 {
 
     public:
 
-        MPU6050(uint8_t address=0x68, uint8_t bus=0, i2c_pins pins=I2C_PINS_18_19, i2c_pullup=I2C_PULLUP_EXT);
+        MPU6050(uint8_t address=0x68, uint8_t bus=0, i2c_pins pins=I2C_PINS_18_19, i2c_pullup=I2C_PULLUP_EXT, uint32_t i2cRate=I2C_RATE_400);
 
         int   begin(void);
 
@@ -34,6 +34,7 @@ class MPU6050 {
         uint8_t    _bus;
         i2c_pins   _pins;
         i2c_pullup _pullups;
+        uint32_t   _i2cRate;
 
         static void    readAccelData(int16_t * ax, int16_t * ay, int16_t *az);
         static void    readGyroData(int16_t * gx, int16_t * gy, int16_t *gz);
