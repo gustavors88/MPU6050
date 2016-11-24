@@ -1,7 +1,10 @@
 /*
    MPU6050.cpp : implementation of MPU6050 library for Teensy 3.X and Teensy LC
 
-   Code adapted from https://github.com/kriswiner/MPU-6050/blob/master/MPU6050BasicExample.ino
+   Code adapted from:
+
+       https://github.com/kriswiner/MPU-6050/blob/master/MPU6050BasicExample.ino
+       https://github.com/bolderflight/MPU9250
 
    This file is part of MPU6050.
 
@@ -77,6 +80,11 @@ MPU6050::MPU6050(uint8_t address, uint8_t bus)
 
 int MPU6050::begin(void)
 {  
+    // Start I^2C
+    //i2c_t3(_bus).begin(I2C_MASTER, 0, _pins, _pullups, _i2cRate);
+    i2c_t3(_bus).begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
+
+
     uint8_t c = MPU6050::readByte(MPU6050_ADDRESS, WHO_AM_I_MPU6050);  // Read WHO_AM_I register for MPU-6050
 
     if (c != 0x68) // WHO_AM_I should always be 0x68
