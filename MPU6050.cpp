@@ -52,8 +52,6 @@
 #define PWR_MGMT_2       0x6C
 #define WHO_AM_I_MPU6050 0x75 // Should return 0x68
 
-#define MPU6050_ADDRESS  0x68  // Device address
-
 enum Ascale {
     AFS_2G = 0,
     AFS_4G,
@@ -86,39 +84,39 @@ int MPU6050::begin(void)
     // Start I^2C
     i2c_t3(_bus).begin(I2C_MASTER, 0x00, _pins, _pullups, _i2cRate);
 
-    uint8_t c = MPU6050::readByte(MPU6050_ADDRESS, WHO_AM_I_MPU6050);  // Read WHO_AM_I register for MPU-6050
+    uint8_t c = MPU6050::readByte(_address, WHO_AM_I_MPU6050);  // Read WHO_AM_I register for MPU-6050
 
     if (c != 0x68) // WHO_AM_I should always be 0x68
         return -1;
 
     // get stable time source
-    writeByte(MPU6050_ADDRESS, PWR_MGMT_1, 0x01);  // Set clock source to be PLL with x-axis gyroscope reference, bits 2:0 = 001
+    writeByte(_address, PWR_MGMT_1, 0x01);  // Set clock source to be PLL with x-axis gyroscope reference, bits 2:0 = 001
 
     // Configure Gyro and Accelerometer
     // Disable FSYNC and set accelerometer and gyro bandwidth to 44 and 42 Hz, respectively; 
     // DLPF_CFG = bits 2:0 = 010; this sets the sample rate at 1 kHz for both
-    writeByte(MPU6050_ADDRESS, CONFIG, 0x03);  
+    writeByte(_address, CONFIG, 0x03);  
 
     // Set sample rate = gyroscope output rate/(1 + SMPLRT_DIV)
-    writeByte(MPU6050_ADDRESS, SMPLRT_DIV, 0x04);  // Use a 200 Hz sample rate 
+    writeByte(_address, SMPLRT_DIV, 0x04);  // Use a 200 Hz sample rate 
 
     // Set gyroscope full scale range
     // Range selects FS_SEL and AFS_SEL are 0 - 3, so 2-bit values are left-shifted into positions 4:3
-    c =  readByte(MPU6050_ADDRESS, GYRO_CONFIG);
-    writeByte(MPU6050_ADDRESS, GYRO_CONFIG, c & ~0xE0); // Clear self-test bits [7:5] 
-    writeByte(MPU6050_ADDRESS, GYRO_CONFIG, c & ~0x18); // Clear AFS bits [4:3]
-    writeByte(MPU6050_ADDRESS, GYRO_CONFIG, c | Gscale << 3); // Set full scale range for the gyro
+    c =  readByte(_address, GYRO_CONFIG);
+    writeByte(_address, GYRO_CONFIG, c & ~0xE0); // Clear self-test bits [7:5] 
+    writeByte(_address, GYRO_CONFIG, c & ~0x18); // Clear AFS bits [4:3]
+    writeByte(_address, GYRO_CONFIG, c | Gscale << 3); // Set full scale range for the gyro
 
     // Set accelerometer configuration
-    c =  readByte(MPU6050_ADDRESS, ACCEL_CONFIG);
-    writeByte(MPU6050_ADDRESS, ACCEL_CONFIG, c & ~0xE0); // Clear self-test bits [7:5] 
-    writeByte(MPU6050_ADDRESS, ACCEL_CONFIG, c & ~0x18); // Clear AFS bits [4:3]
-    writeByte(MPU6050_ADDRESS, ACCEL_CONFIG, c | Ascale << 3); // Set full scale range for the accelerometer 
+    c =  readByte(_address, ACCEL_CONFIG);
+    writeByte(_address, ACCEL_CONFIG, c & ~0xE0); // Clear self-test bits [7:5] 
+    writeByte(_address, ACCEL_CONFIG, c & ~0x18); // Clear AFS bits [4:3]
+    writeByte(_address, ACCEL_CONFIG, c | Ascale << 3); // Set full scale range for the accelerometer 
     // Configure Interrupts and Bypass Enable
     // Set interrupt pin active high, push-pull, and clear on read of INT_STATUS, enable I2C_BYPASS_EN so additional chips 
     // can join the I2C bus and all can be controlled by the Arduino as master
-    writeByte(MPU6050_ADDRESS, INT_PIN_CFG, 0x02);    
-    writeByte(MPU6050_ADDRESS, INT_ENABLE, 0x01);  // Enable data ready (bit 0) interrupt
+    writeByte(_address, INT_PIN_CFG, 0x02);    
+    writeByte(_address, INT_ENABLE, 0x01);  // Enable data ready (bit 0) interrupt
 
     // Success!
     return 0;
@@ -127,7 +125,7 @@ int MPU6050::begin(void)
 bool MPU6050::getMotion6Counts(int16_t * ax, int16_t * ay, int16_t * az, int16_t * gx, int16_t * gy, int16_t * gz)
 {
     // If data ready bit set, all data registers have new data
-    if (readByte(MPU6050_ADDRESS, INT_STATUS) & 0x01) {  // check if data ready interrupt
+    if (readByte(_address, INT_STATUS) & 0x01) {  // check if data ready interrupt
 
         readAccelData(ax, ay, az);  // Read the x/y/z adc values
         readGyroData(gx, gy, gz);  // Read the x/y/z adc values
@@ -141,7 +139,7 @@ bool MPU6050::getMotion6Counts(int16_t * ax, int16_t * ay, int16_t * az, int16_t
 void MPU6050::readAccelData(int16_t * ax, int16_t * ay, int16_t *az)
 {
     uint8_t rawData[6];  // x/y/z accel register data stored here
-    readBytes(MPU6050_ADDRESS, ACCEL_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers into data array
+    readBytes(_address, ACCEL_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers into data array
     *ax = (int16_t)((rawData[0] << 8) | rawData[1]) ;  // Turn the MSB and LSB into a signed 16-bit value
     *ay = (int16_t)((rawData[2] << 8) | rawData[3]) ;  
     *az = (int16_t)((rawData[4] << 8) | rawData[5]) ; 
@@ -150,7 +148,7 @@ void MPU6050::readAccelData(int16_t * ax, int16_t * ay, int16_t *az)
 void MPU6050::readGyroData(int16_t * gx, int16_t * gy, int16_t * gz)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
-    readBytes(MPU6050_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
+    readBytes(_address, GYRO_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
     *gx = (int16_t)((rawData[0] << 8) | rawData[1]) ;  // Turn the MSB and LSB into a signed 16-bit value
     *gy = (int16_t)((rawData[2] << 8) | rawData[3]) ;  
     *gz = (int16_t)((rawData[4] << 8) | rawData[5]) ; 
