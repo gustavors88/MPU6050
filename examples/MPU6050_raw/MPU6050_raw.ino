@@ -24,7 +24,7 @@ void setup()
 {
     Serial.begin(38400);
 
-    if (!imu.begin()) {
+    if (!imu.begin(AFS_2G, GFS_250DPS)) {
         Serial.println("MPU6050 is online...");
     }
     else {

@@ -52,24 +52,6 @@
 #define PWR_MGMT_2       0x6C
 #define WHO_AM_I_MPU6050 0x75 // Should return 0x68
 
-enum Ascale {
-    AFS_2G = 0,
-    AFS_4G,
-    AFS_8G,
-    AFS_16G
-};
-
-enum Gscale {
-    GFS_250DPS = 0,
-    GFS_500DPS,
-    GFS_1000DPS,
-    GFS_2000DPS
-};
-
-// Specify sensor full scale
-int Gscale = GFS_250DPS;
-int Ascale = AFS_2G;
-
 MPU6050::MPU6050(uint8_t address, uint8_t bus, i2c_pins pins, i2c_pullup pullups, uint32_t i2cRate)
 {
     _address = address;
@@ -79,7 +61,7 @@ MPU6050::MPU6050(uint8_t address, uint8_t bus, i2c_pins pins, i2c_pullup pullups
     _i2cRate = i2cRate;
 }
 
-int MPU6050::begin(void)
+int MPU6050::begin(mpu_accel_range arange, mpu_gyro_range grange)
 {  
     // Start I^2C
     i2c_t3(_bus).begin(I2C_MASTER, 0x00, _pins, _pullups, _i2cRate);
@@ -105,13 +87,13 @@ int MPU6050::begin(void)
     c =  readByte(_address, GYRO_CONFIG);
     writeByte(_address, GYRO_CONFIG, c & ~0xE0); // Clear self-test bits [7:5] 
     writeByte(_address, GYRO_CONFIG, c & ~0x18); // Clear AFS bits [4:3]
-    writeByte(_address, GYRO_CONFIG, c | Gscale << 3); // Set full scale range for the gyro
+    writeByte(_address, GYRO_CONFIG, c | grange << 3); // Set full scale range for the gyro
 
     // Set accelerometer configuration
     c =  readByte(_address, ACCEL_CONFIG);
     writeByte(_address, ACCEL_CONFIG, c & ~0xE0); // Clear self-test bits [7:5] 
     writeByte(_address, ACCEL_CONFIG, c & ~0x18); // Clear AFS bits [4:3]
-    writeByte(_address, ACCEL_CONFIG, c | Ascale << 3); // Set full scale range for the accelerometer 
+    writeByte(_address, ACCEL_CONFIG, c | arange << 3); // Set full scale range for the accelerometer 
     // Configure Interrupts and Bypass Enable
     // Set interrupt pin active high, push-pull, and clear on read of INT_STATUS, enable I2C_BYPASS_EN so additional chips 
     // can join the I2C bus and all can be controlled by the Arduino as master

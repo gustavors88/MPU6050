@@ -18,13 +18,27 @@
 #include <i2c_t3.h>
 #include <stdint.h>
 
+typedef enum {
+    GFS_250DPS = 0,
+    GFS_500DPS,
+    GFS_1000DPS,
+    GFS_2000DPS
+} mpu_gyro_range;
+
+typedef enum {
+    AFS_2G = 0,
+    AFS_4G,
+    AFS_8G,
+    AFS_16G
+} mpu_accel_range;
+
 class MPU6050 {
 
     public:
 
         MPU6050(uint8_t address=0x68, uint8_t bus=0, i2c_pins pins=I2C_PINS_18_19, i2c_pullup=I2C_PULLUP_EXT, uint32_t i2cRate=I2C_RATE_400);
 
-        int begin(void);
+        int begin(mpu_accel_range arange, mpu_gyro_range grange);
 
         bool getMotion6Counts(int16_t * ax, int16_t * ay, int16_t * az, int16_t * gx, int16_t * gy, int16_t * gz);
 
