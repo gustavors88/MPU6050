@@ -15,7 +15,6 @@
    along with Hackflight.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <i2c_t3.h>
 #include "MPU6050.h"
 
 MPU6050 imu;
@@ -40,6 +39,18 @@ void loop()
 {  
     int16_t ax, ay, az, gx, gy, gz;
 
-    if (imu.getMotion6Counts(&ax, &ay, &az, &gx, &gy, &gz))
-        Serial.printf("%+04d %+04d %+04d  %+04d %+04d %+04d\n", ax, ay, az, gx, gy, gz);
+    if (imu.getMotion6Counts(&ax, &ay, &az, &gx, &gy, &gz)) {
+        Serial.print(ax);
+        Serial.print(" ");
+        Serial.print(ay);
+        Serial.print(" ");
+        Serial.print(az);
+        Serial.print(" ");
+        Serial.print(gx);
+        Serial.print(" ");
+        Serial.print(gy);
+        Serial.print(" ");
+        Serial.print(gz);
+        Serial.println();
+    }
 }

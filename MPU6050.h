@@ -15,7 +15,13 @@
    along with Hackflight.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//#include <i2c_t3.h>
+// Support different boards
+#if defined(TEENSYDUINO)
+#include <i2c_t3.h>
+#else
+#include <Wire.h>
+#endif
+
 #include <stdint.h>
 
 typedef enum {
