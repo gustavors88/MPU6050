@@ -22,8 +22,10 @@ MPU6050 imu;
 
 void setup()
 {
-    Serial.begin(38400);
+    Serial.begin(115200);
 
+    Wire.begin();
+ 
     if (!imu.begin(AFS_2G, GFS_250DPS)) {
         Serial.println("MPU6050 is online...");
     }

@@ -52,20 +52,13 @@
 #define PWR_MGMT_2       0x6C
 #define WHO_AM_I_MPU6050 0x75 // Should return 0x68
 
-MPU6050::MPU6050(uint8_t address, uint8_t bus, i2c_pins pins, i2c_pullup pullups, uint32_t i2cRate)
+MPU6050::MPU6050(uint8_t address)
 {
     _address = address;
-    _bus = bus;
-    _pins = pins;
-    _pullups = pullups;
-    _i2cRate = i2cRate;
 }
 
 int MPU6050::begin(mpu_accel_range arange, mpu_gyro_range grange)
 {  
-    // Start I^2C
-    i2c_t3(_bus).begin(I2C_MASTER, 0x00, _pins, _pullups, _i2cRate);
-
     uint8_t c = MPU6050::readByte(_address, WHO_AM_I_MPU6050);  // Read WHO_AM_I register for MPU-6050
 
     if (c != 0x68) // WHO_AM_I should always be 0x68
@@ -138,30 +131,30 @@ void MPU6050::readGyroData(int16_t * gx, int16_t * gy, int16_t * gz)
 
 void MPU6050::writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
-    i2c_t3(_bus).beginTransmission(address);  // Initialize the Tx buffer
-    i2c_t3(_bus).write(subAddress);           // Put slave register address in Tx buffer
-    i2c_t3(_bus).write(data);                 // Put data in Tx buffer
-    i2c_t3(_bus).endTransmission();           // Send the Tx buffer
+    Wire.beginTransmission(address);  // Initialize the Tx buffer
+    Wire.write(subAddress);           // Put slave register address in Tx buffer
+    Wire.write(data);                 // Put data in Tx buffer
+    Wire.endTransmission();           // Send the Tx buffer
 }
 
 uint8_t MPU6050::readByte(uint8_t address, uint8_t subAddress)
 {
     uint8_t data; // `data` will store the register data	 
-    i2c_t3(_bus).beginTransmission(address);         // Initialize the Tx buffer
-    i2c_t3(_bus).write(subAddress);	                 // Put slave register address in Tx buffer
-    i2c_t3(_bus).endTransmission(false);             // Send the Tx buffer, but send a restart to keep connection alive
-    i2c_t3(_bus).requestFrom(address, (uint8_t) 1);  // Read one byte from slave register address 
-    data = i2c_t3(_bus).read();                      // Fill Rx buffer with result
+    Wire.beginTransmission(address);         // Initialize the Tx buffer
+    Wire.write(subAddress);	                 // Put slave register address in Tx buffer
+    Wire.endTransmission(false);             // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.requestFrom(address, (uint8_t) 1);  // Read one byte from slave register address 
+    data = Wire.read();                      // Fill Rx buffer with result
     return data;                             // Return data read from slave register
 }
 
 void MPU6050::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
-    i2c_t3(_bus).beginTransmission(address);   // Initialize the Tx buffer
-    i2c_t3(_bus).write(subAddress);            // Put slave register address in Tx buffer
-    i2c_t3(_bus).endTransmission(false);       // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.beginTransmission(address);   // Initialize the Tx buffer
+    Wire.write(subAddress);            // Put slave register address in Tx buffer
+    Wire.endTransmission(false);       // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
-    i2c_t3(_bus).requestFrom(address, count);  // Read bytes from slave register address 
-    while (i2c_t3(_bus).available()) {
-        dest[i++] = i2c_t3(_bus).read(); }         // Put read results in the Rx buffer
+    Wire.requestFrom(address, count);  // Read bytes from slave register address 
+    while (Wire.available()) {
+        dest[i++] = Wire.read(); }         // Put read results in the Rx buffer
 }
