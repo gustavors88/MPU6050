@@ -58,39 +58,39 @@ MPU6050::MPU6050(uint8_t address)
 
 int MPU6050::begin(mpu_accel_range arange, mpu_gyro_range grange)
 {  
-    uint8_t c = MPU6050::readByte(_address, WHO_AM_I_MPU6050);  // Read WHO_AM_I register for MPU-6050
+    uint8_t c = MPU6050::readByte(WHO_AM_I_MPU6050);  // Read WHO_AM_I register for MPU-6050
 
     if (c != 0x68) // WHO_AM_I should always be 0x68
         return -1;
 
     // get stable time source
-    writeByte(_address, PWR_MGMT_1, 0x01);  // Set clock source to be PLL with x-axis gyroscope reference, bits 2:0 = 001
+    writeByte(PWR_MGMT_1, 0x01);  // Set clock source to be PLL with x-axis gyroscope reference, bits 2:0 = 001
 
     // Configure Gyro and Accelerometer
     // Disable FSYNC and set accelerometer and gyro bandwidth to 44 and 42 Hz, respectively; 
     // DLPF_CFG = bits 2:0 = 010; this sets the sample rate at 1 kHz for both
-    writeByte(_address, CONFIG, 0x03);  
+    writeByte(CONFIG, 0x03);  
 
     // Set sample rate = gyroscope output rate/(1 + SMPLRT_DIV)
-    writeByte(_address, SMPLRT_DIV, 0x04);  // Use a 200 Hz sample rate 
+    writeByte(SMPLRT_DIV, 0x04);  // Use a 200 Hz sample rate 
 
     // Set gyroscope full scale range
     // Range selects FS_SEL and AFS_SEL are 0 - 3, so 2-bit values are left-shifted into positions 4:3
-    c =  readByte(_address, GYRO_CONFIG);
-    writeByte(_address, GYRO_CONFIG, c & ~0xE0); // Clear self-test bits [7:5] 
-    writeByte(_address, GYRO_CONFIG, c & ~0x18); // Clear AFS bits [4:3]
-    writeByte(_address, GYRO_CONFIG, c | grange << 3); // Set full scale range for the gyro
+    c =  readByte(GYRO_CONFIG);
+    writeByte(GYRO_CONFIG, c & ~0xE0); // Clear self-test bits [7:5] 
+    writeByte(GYRO_CONFIG, c & ~0x18); // Clear AFS bits [4:3]
+    writeByte(GYRO_CONFIG, c | grange << 3); // Set full scale range for the gyro
 
     // Set accelerometer configuration
-    c =  readByte(_address, ACCEL_CONFIG);
-    writeByte(_address, ACCEL_CONFIG, c & ~0xE0); // Clear self-test bits [7:5] 
-    writeByte(_address, ACCEL_CONFIG, c & ~0x18); // Clear AFS bits [4:3]
-    writeByte(_address, ACCEL_CONFIG, c | arange << 3); // Set full scale range for the accelerometer 
+    c =  readByte(ACCEL_CONFIG);
+    writeByte(ACCEL_CONFIG, c & ~0xE0); // Clear self-test bits [7:5] 
+    writeByte(ACCEL_CONFIG, c & ~0x18); // Clear AFS bits [4:3]
+    writeByte(ACCEL_CONFIG, c | arange << 3); // Set full scale range for the accelerometer 
     // Configure Interrupts and Bypass Enable
     // Set interrupt pin active high, push-pull, and clear on read of INT_STATUS, enable I2C_BYPASS_EN so additional chips 
     // can join the I2C bus and all can be controlled by the Arduino as master
-    writeByte(_address, INT_PIN_CFG, 0x02);    
-    writeByte(_address, INT_ENABLE, 0x01);  // Enable data ready (bit 0) interrupt
+    writeByte(INT_PIN_CFG, 0x02);    
+    writeByte(INT_ENABLE, 0x01);  // Enable data ready (bit 0) interrupt
 
     // Success!
     return 0;
@@ -99,7 +99,7 @@ int MPU6050::begin(mpu_accel_range arange, mpu_gyro_range grange)
 bool MPU6050::getMotion6Counts(int16_t * ax, int16_t * ay, int16_t * az, int16_t * gx, int16_t * gy, int16_t * gz)
 {
     // If data ready bit set, all data registers have new data
-    if (readByte(_address, INT_STATUS) & 0x01) {  // check if data ready interrupt
+    if (readByte(INT_STATUS) & 0x01) {  // check if data ready interrupt
 
         readAccelData(ax, ay, az);  // Read the x/y/z adc values
         readGyroData(gx, gy, gz);  // Read the x/y/z adc values
@@ -113,7 +113,7 @@ bool MPU6050::getMotion6Counts(int16_t * ax, int16_t * ay, int16_t * az, int16_t
 void MPU6050::readAccelData(int16_t * ax, int16_t * ay, int16_t *az)
 {
     uint8_t rawData[6];  // x/y/z accel register data stored here
-    readBytes(_address, ACCEL_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers into data array
+    readBytes(ACCEL_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers into data array
     *ax = (int16_t)((rawData[0] << 8) | rawData[1]) ;  // Turn the MSB and LSB into a signed 16-bit value
     *ay = (int16_t)((rawData[2] << 8) | rawData[3]) ;  
     *az = (int16_t)((rawData[4] << 8) | rawData[5]) ; 
@@ -122,34 +122,34 @@ void MPU6050::readAccelData(int16_t * ax, int16_t * ay, int16_t *az)
 void MPU6050::readGyroData(int16_t * gx, int16_t * gy, int16_t * gz)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
-    readBytes(_address, GYRO_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
+    readBytes(GYRO_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
     *gx = (int16_t)((rawData[0] << 8) | rawData[1]) ;  // Turn the MSB and LSB into a signed 16-bit value
     *gy = (int16_t)((rawData[2] << 8) | rawData[3]) ;  
     *gz = (int16_t)((rawData[4] << 8) | rawData[5]) ; 
 }
 
-void MPU6050::writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
+void MPU6050::writeByte(uint8_t subAddress, uint8_t data)
 {
-    Wire.beginTransmission(address);  // Initialize the Tx buffer
+    Wire.beginTransmission(_address);  // Initialize the Tx buffer
     Wire.write(subAddress);           // Put slave register address in Tx buffer
     Wire.write(data);                 // Put data in Tx buffer
     Wire.endTransmission();           // Send the Tx buffer
 }
 
-uint8_t MPU6050::readByte(uint8_t address, uint8_t subAddress)
+uint8_t MPU6050::readByte(uint8_t subAddress)
 {
     uint8_t byte;
-    readBytes(address, subAddress, 1, &byte);
+    readBytes(subAddress, 1, &byte);
     return byte;
 }
 
-void MPU6050::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
+void MPU6050::readBytes(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
-    Wire.beginTransmission(address);   // Initialize the Tx buffer
+    Wire.beginTransmission(_address);   // Initialize the Tx buffer
     Wire.write(subAddress);            // Put slave register address in Tx buffer
     Wire.endTransmission(false);       // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
-    Wire.requestFrom(address, count);  // Read bytes from slave register address 
+    Wire.requestFrom(_address, count);  // Read bytes from slave register address 
     while (Wire.available()) {
         dest[i++] = Wire.read(); }         // Put read results in the Rx buffer
 }
