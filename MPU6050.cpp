@@ -146,10 +146,11 @@ uint8_t MPU6050::readByte(uint8_t subAddress)
 void MPU6050::readBytes(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
     Wire.beginTransmission(_address);   // Initialize the Tx buffer
-    Wire.write(subAddress);            // Put slave register address in Tx buffer
-    Wire.endTransmission(false);       // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.write(subAddress);             // Put slave register address in Tx buffer
+    Wire.endTransmission(false);        // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
     Wire.requestFrom(_address, count);  // Read bytes from slave register address 
     while (Wire.available()) {
-        dest[i++] = Wire.read(); }         // Put read results in the Rx buffer
+        dest[i++] = Wire.read();        // Put read results in the Rx buffer
+    }
 }
