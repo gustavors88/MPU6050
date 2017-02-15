@@ -6,3 +6,5 @@ methods:
 <li> begin(), allowing you to specify the acceleromter and gyroscope ranges
 <p><li>getMotion6Counts(), wich outputs the raw X,Y,Z values for the accelerometer and gyroscope
 </ul>
+
+I have tested this library with an Arduino Uno and a Teensy 3.2.
