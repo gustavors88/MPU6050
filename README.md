@@ -7,4 +7,4 @@ methods:
 <p><li>getMotion6Counts(), wich outputs the raw X,Y,Z values for the accelerometer and gyroscope
 </ul>
 
-I have tested this library with an Arduino Uno and a Teensy 3.2.
+I have tested this library with an Arduino Uno, Teensy 3.2, and Teensy 3.6.
